@@ -6,3 +6,7 @@ using this tool to convert png to arduino code
 https://www.mischianti.org/images-to-byte-array-online-converter-cpp-arduino/
 
 need to change the data type from "const uint16_t" to int for it to work
+
+Use the technique in this YouTube video for making sonic look right
+
+https://youtu.be/U4jOFLFNZBI
