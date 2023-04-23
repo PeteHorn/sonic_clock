@@ -5,7 +5,7 @@
 File dataFile;
 TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
 
-uint16_t sonic[30000];
+uint16_t sonic[5600];
 
 void setup() {
   Serial.begin(115200);
@@ -22,7 +22,7 @@ void setup() {
   else {
     Serial.println("SD card found");
   }
-  dataFile = SD.open("/stand_01.bin", FILE_READ);
+  dataFile = SD.open("/sonic_run_01.bin", FILE_READ);
   Serial.println("SD opened");
   if (dataFile) {
     dataFile.read((uint8_t *)&sonic, sizeof(sonic));
@@ -34,7 +34,7 @@ void setup() {
   tft.setRotation(1);
   tft.setSwapBytes(true);
   tft.fillScreen(TFT_BLACK);
-  tft.pushImage(20, 20, 150, 200, sonic, TFT_BLACK);
+  tft.pushImage(20, 20, 70, 80, sonic, TFT_BLACK);
   dataFile.close();
 }
 
