@@ -29,37 +29,55 @@ void setup() {
     Serial.println("SD card found");
   }
   delay(1000);
-  dataFile1 = SD.open("/sonic_star_1.bin", FILE_WRITE);
-  dataFile2 = SD.open("/sonic_star_2.bin", FILE_WRITE);
-  dataFile3 = SD.open("/sonic_star_3.bin", FILE_WRITE);
-  dataFile4 = SD.open("/sonic_star_4.bin", FILE_WRITE);
-  Serial.println("SD opened");
-  delay(1000);
-  if (dataFile1) {
-    dataFile1.write((const uint8_t *)&sonic_star_1, sizeof(sonic_star_1));
+  if (SD.exists("/sonic_stop_1.bin")) {
+    dataFile1 = SD.open("/sonic_stop_1.bin", FILE_WRITE);
+    if (dataFile1) {
+    dataFile1.write((const uint8_t *)&sonic_stop_1, sizeof(sonic_stop_1));
+    }
+    else {
+      Serial.println("sonic_stop_1 exists already");
+    }
+    dataFile1.close();
   }
-  if (dataFile2) {
-    dataFile2.write((const uint8_t *)&sonic_star_2, sizeof(sonic_star_2));
+  if (SD.exists("/sonic_stop_1_rev.bin")) {
+    dataFile2 = SD.open("/sonic_stop_1_rev.bin", FILE_WRITE);
+    if (dataFile2) {
+    dataFile2.write((const uint8_t *)&sonic_stop_1_rev, sizeof(sonic_stop_1_rev));
+    }
+    else {
+      Serial.println("sonic_stop_1_rev exists already");
+    }
+    dataFile2.close();
   }
+  if (SD.exists("/sonic_stand_6.bin")) {
+    dataFile3 = SD.open("/sonic_stand_6.bin", FILE_WRITE);
     if (dataFile3) {
-    dataFile3.write((const uint8_t *)&sonic_star_3, sizeof(sonic_star_3));
+    dataFile3.write((const uint8_t *)&sonic_stand_6, sizeof(sonic_stand_6));
+    } 
+    else {
+      Serial.println("sonic_stand_6 exists already");
+    }
+    dataFile3.close();
   }
-  if (dataFile4) {
-    dataFile4.write((const uint8_t *)&sonic_star_4, sizeof(sonic_star_4));
+  if (SD.exists("/sonic_stand_6_rev.bin")) {
+    dataFile4 = SD.open("/sonic_stand_6_rev.bin", FILE_WRITE);
+    if (dataFile4) {
+      dataFile4.write((const uint8_t *)&sonic_stand_6_rev, sizeof(sonic_stand_6_rev));
+    }
+    else {
+      Serial.println("sonic_stand_6_rev exists already");
+    }
+    dataFile4.close();
   }
   tft.init();
   tft.setRotation(1);
   tft.setSwapBytes(true);
   tft.fillScreen(TFT_BLACK);
-  dataFile1.close();
-  dataFile2.close();
-  dataFile3.close();
-  dataFile4.close();
   delay(500);
-  dataFile1 = SD.open("/sonic_star_2.bin", FILE_READ);
-  dataFile2 = SD.open("/sonic_star_1.bin", FILE_READ);
-  dataFile3 = SD.open("/sonic_star_4.bin", FILE_READ);
-  dataFile4 = SD.open("/sonic_star_3.bin", FILE_READ);
+  dataFile1 = SD.open("/sonic_stop_1.bin", FILE_READ);
+  dataFile2 = SD.open("/sonic_stop_1_rev.bin", FILE_READ);
+  dataFile3 = SD.open("/sonic_stand_6.bin", FILE_READ);
+  dataFile4 = SD.open("/sonic_stand_6_rev.bin", FILE_READ);
   Serial.println("SD opened");
   delay(1000);
   if (dataFile1) {
