@@ -1,7 +1,6 @@
 #include <SPI.h>
 #include <SD.h>
 #include <TFT_eSPI.h> // Master copy here: https://github.com/Bodmer/TFT_eSPI
-#include "sonic.h"
 
 #include <WiFi.h>
 #include "time.h"
@@ -57,7 +56,7 @@ const long  gmtOffset_sec = 0;
 const int   daylightOffset_sec = 3600;
 
 //variables
-File dataFile;
+File dataFile1, dataFile2, dataFile3, dataFile4;
 int count = 0;
 unsigned long due = 0;
 unsigned long currenttime = 0;
@@ -68,9 +67,51 @@ bool rev = false;
 int jump_ani_count = 0;
 int jump_height_count = 0;
 float jumpheight = 0;
-uint16_t sonic[5600];
+uint16_t sonic_1[5600];
+uint16_t sonic_2[5600];
+uint16_t sonic_3[5600];
+uint16_t sonic_4[5600];
+int set_size;
+
 String image;
 int array_length;
+
+int load_images(String image_set[]) {
+  dataFile1 = SD.open(image_set[0], FILE_READ);
+  dataFile1.read((uint8_t *)&sonic_1, sizeof(sonic_1));
+  dataFile1.close();
+  dataFile2 = SD.open(image_set[1], FILE_READ);
+  dataFile2.read((uint8_t *)&sonic_2, sizeof(sonic_2));
+  dataFile2.close();
+  dataFile3 = SD.open(image_set[2], FILE_READ);
+  dataFile3.read((uint8_t *)&sonic_3, sizeof(sonic_3));
+  dataFile3.close();
+  dataFile4 = SD.open(image_set[3], FILE_READ);
+  dataFile4.read((uint8_t *)&sonic_4, sizeof(sonic_4));
+  dataFile4.close();
+  int setsize = sizeof(image_set);
+  return setsize;  
+}
+
+int draw_sonic(int intcount, int setsize) {
+  if (intcount < setsize - 1) {
+    intcount++;
+  }
+  else {
+    intcount = 0;
+  }
+  switch (count) {
+    case 0:
+      sonicSprite.pushImage(20, 20, 70, 80, sonic_1, TFT_BLACK);
+    case 1:
+      sonicSprite.pushImage(20, 20, 70, 80, sonic_2, TFT_BLACK);
+    case 2:
+      sonicSprite.pushImage(20, 20, 70, 80, sonic_3, TFT_BLACK);
+    case 3:
+      sonicSprite.pushImage(20, 20, 70, 80, sonic_4, TFT_BLACK);
+  }
+  return intcount;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -114,275 +155,12 @@ void setup() {
   //disconnect WiFi as it's no longer needed
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
+  set_size = load_images(run_left);
 }
 
 void loop() {
-//  currenttime = millis();
-//  if (state == running) {
-//    Serial.println(sonic_pos.x);
-//    if (sonic_pos.x < left_limit || sonic_pos.x > right_limit) {
-//      if (sonic_pos.x < 240) {
-//        rev = false;
-//      }
-//      else {
-//        rev = true;
-//      }
-//      due = currenttime + move_period;
-//      state = standing;
-//    }
-//    if (rev == false) {
-//      sonic_pos.x += 10;
-//    }
-//    else {
-//      sonic_pos.x -= 10;
-//    }
-//    count = handle_fast (count, rev);
-//  }
-//  else if (state == standing) {
-//    if (currenttime > due) {
-//      state = states_arr[random(3)];
-//    }
-//    else {
-//      count = handle_stand (count, rev);
-//    }
-//  }
-//  else if (state == jumping) {
-//    if (jump_ani_count >= num_jumps) {
-//      //jump animation complete, reset and go back to standing
-//      jump_ani_count = 0;
-//      jump_height_count = 0;
-//      sonic_pos.y = init_sonic_y;
-//      state = standing;
-//    }
-//    else {
-//      if (jump_height_count >= jump_points) {
-//        //Finished a single jump, move on to the next height
-//        jump_ani_count++;
-//        jump_height_count = 0;
-//      }
-//      else {
-//        jumpheight = jump_heights[jump_ani_count] * jump_y[jump_height_count];
-//        jump_height_count++;
-//        sonic_pos.y = init_sonic_y - jumpheight;
-//      }
-//    }
-//  }
-//  else {
-//    //should never enter this state - immediately choose standing if it does
-//    int state = standing;
-//  }
-  image = run_right[count];
-  dataFile = SD.open(image, FILE_READ);
-  dataFile.read((uint8_t *)&sonic, sizeof(sonic));
-  sonicSprite.pushImage(20, 20, 70, 80, sonic, TFT_BLACK);
+  count = draw_sonic(count, set_size);
   sonicSprite.pushToSprite(&background, 20, 80);
   background.pushSprite(sonic_pos.x, sonic_pos.y);
-  array_length = sizeof(run_right) / sizeof(run_right[0]);
-  if (count >= array_length - 1) {
-    count = 0;
-  }
-  else {
-    count++;
-  }
-  delay(30);
-////  printLocalTime();
-//  Serial.println(state);
+  delay(3000);
 }
-//
-////jump animation currently using the fast images until the SD card is available
-//int handle_jump (int count, bool rev) {
-//  switch (count) {
-//    case 0:
-//      if (rev == false) {
-//        sonic.pushImage(20, 20, 49, 64, sonic_fast_1, TFT_BLACK);
-//      }
-//      else {
-//        sonic.pushImage(20, 20, 49, 64, sonic_fast_1_rev, TFT_BLACK);
-//      }
-//      break;
-//    case 1:
-//      if (rev == false) {
-//        sonic.pushImage(20, 20, 50, 63, sonic_fast_2, TFT_BLACK);
-//      }
-//      else {
-//        sonic.pushImage(20, 20, 50, 63, sonic_fast_2_rev, TFT_BLACK);
-//      }
-//      break;
-//    case 2:
-//      if (rev == false) {
-//        sonic.pushImage(20, 20, 50, 64, sonic_fast_3, TFT_BLACK);
-//      }
-//      else {
-//        sonic.pushImage(20, 20, 50, 64, sonic_fast_3_rev, TFT_BLACK);
-//      }
-//      break;
-//    case 3:
-//      if (rev == false) {
-//        sonic.pushImage(20, 20, 49, 60, sonic_fast_4, TFT_BLACK);
-//      }
-//      else {
-//        sonic.pushImage(20, 20, 49, 60, sonic_fast_4_rev, TFT_BLACK);
-//      }
-//      break;
-//  }
-//  count++;
-//  if (count >= 4){
-//    count = 0;
-//  }
-//  delay(5);
-//  return count;
-//}
-//
-//int handle_fast (int count, bool rev) {
-//  switch (count) {
-//    case 0:
-//      if (rev == false) {
-//        sonic.pushImage(20, 20, 49, 64, sonic_fast_1, TFT_BLACK);
-//      }
-//      else {
-//        sonic.pushImage(20, 20, 49, 64, sonic_fast_1_rev, TFT_BLACK);
-//      }
-//      break;
-//    case 1:
-//      if (rev == false) {
-//        sonic.pushImage(20, 20, 50, 63, sonic_fast_2, TFT_BLACK);
-//      }
-//      else {
-//        sonic.pushImage(20, 20, 50, 63, sonic_fast_2_rev, TFT_BLACK);
-//      }
-//      break;
-//    case 2:
-//      if (rev == false) {
-//        sonic.pushImage(20, 20, 50, 64, sonic_fast_3, TFT_BLACK);
-//      }
-//      else {
-//        sonic.pushImage(20, 20, 50, 64, sonic_fast_3_rev, TFT_BLACK);
-//      }
-//      break;
-//    case 3:
-//      if (rev == false) {
-//        sonic.pushImage(20, 20, 49, 60, sonic_fast_4, TFT_BLACK);
-//      }
-//      else {
-//        sonic.pushImage(20, 20, 49, 60, sonic_fast_4_rev, TFT_BLACK);
-//      }
-//      break;
-//  }
-//  count++;
-//  if (count >= 4){
-//    count = 0;
-//  }
-//  delay(5);
-//  return count;
-//}
-//
-//int handle_stand (int count, bool rev) {
-//  switch (count) {
-//    case 0:
-//      sonic.pushImage(20, 20, 58, 66, sonic_stand_1, TFT_BLACK);
-////      if (rev == false) {
-////        sonic.pushImage(20, 20, 58, 66, sonic_stand_1, TFT_BLACK);
-////      }
-////      else {
-////        sonic.pushImage(20, 20, 58, 66, sonic_stand_1_rev, TFT_BLACK);
-////      }
-//      break;
-//    case 1:
-//      sonic.pushImage(20, 20, 54, 66, sonic_stand_2, TFT_BLACK);
-////      if (rev == false) {
-////        sonic.pushImage(20, 20, 54, 66, sonic_stand_2, TFT_BLACK);
-////      }
-////      else {
-////        sonic.pushImage(20, 20, 54, 66, sonic_stand_2_rev, TFT_BLACK);
-////      }
-//      break;
-//    case 2:
-//      sonic.pushImage(20, 20, 49, 66, sonic_stand_3, TFT_BLACK);
-////      if (rev == false) {
-////        sonic.pushImage(20, 20, 49, 66, sonic_stand_3, TFT_BLACK);
-////      }
-////      else {
-////        sonic.pushImage(20, 20, 49, 66, sonic_stand_3_rev, TFT_BLACK);
-////      }
-//      break;
-//    case 3:
-//      sonic.pushImage(20, 20, 46, 65, sonic_stand_4, TFT_BLACK);
-////      if (rev == false) {
-////        sonic.pushImage(20, 20, 46, 65, sonic_stand_4, TFT_BLACK);
-////      }
-////      else {
-////        sonic.pushImage(20, 20, 46, 65, sonic_stand_4_rev, TFT_BLACK);
-////      }
-//      break;
-//    case 4:
-//      sonic.pushImage(20, 20, 49, 66, sonic_stand_3, TFT_BLACK);
-////      if (rev == false) {
-////        sonic.pushImage(20, 20, 44, 67, sonic_stand_5, TFT_BLACK);
-////      }
-////      else {
-////        sonic.pushImage(20, 20, 44, 67, sonic_stand_5_rev, TFT_BLACK);
-////      }
-//      break;
-//    case 5:
-//      sonic.pushImage(20, 20, 54, 66, sonic_stand_2, TFT_BLACK);
-////      if (rev == false) {
-////        sonic.pushImage(20, 20, 47, 66, sonic_stand_6, TFT_BLACK);
-////      }
-////      else {
-////        sonic.pushImage(20, 20, 47, 66, sonic_stand_6_rev, TFT_BLACK);
-////      }
-//      break;
-//  }
-//  count++;
-//  if (count >= 6){
-//    count = 0;
-//  }
-//  delay(50);
-//  return count;
-//}
-////
-//////Handle_run not working as well as handle_stand and handle_fast
-////int handle_run (int count, bool rev) {
-////  switch (count) {
-////    case 0:
-////      redraw_sonic(sonic_run_1, 52, 66, rev);
-////      break;
-////    case 1:
-////      redraw_sonic(sonic_run_2, 42, 68, rev);
-////      break;
-////    case 2:
-////      redraw_sonic(sonic_run_3, 41, 68, rev);
-////      break;
-////    case 3:
-////      redraw_sonic(sonic_run_4, 58, 65, rev);
-////      break;
-////    case 4:
-////      redraw_sonic(sonic_run_5, 50, 69, rev);
-////      break;
-////    case 5:
-////      redraw_sonic(sonic_run_6, 42, 68, rev);
-////      break;
-////    case 6:
-////      redraw_sonic(sonic_run_7, 49, 70, rev);
-////      break;
-////    case 7:
-////      redraw_sonic(sonic_run_8, 64, 68, rev);
-////      break;
-////  }
-////  count++;
-////  if (count >= 6){
-////    count = 0;
-////  }
-////  delay(50);
-////  return count;
-////}
-//
-//void printLocalTime()
-//{
-//  struct tm timeinfo;
-//  if(!getLocalTime(&timeinfo)){
-//    Serial.println("Failed to obtain time");
-//    return;
-//  }
-//  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
-//}
