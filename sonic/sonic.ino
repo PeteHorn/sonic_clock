@@ -58,6 +58,7 @@ const int   daylightOffset_sec = 3600;
 //variables
 File dataFile1, dataFile2, dataFile3, dataFile4;
 int count = 0;
+int setsize;
 unsigned long due = 0;
 unsigned long currenttime = 0;
 pos sonic_pos = {init_sonic_x, init_sonic_y};
@@ -71,12 +72,11 @@ uint16_t sonic_1[5600];
 uint16_t sonic_2[5600];
 uint16_t sonic_3[5600];
 uint16_t sonic_4[5600];
-int set_size;
 
 String image;
 int array_length;
 
-int load_images(String image_set[]) {
+void load_images(String image_set[]) {
   dataFile1 = SD.open(image_set[0], FILE_READ);
   dataFile1.read((uint8_t *)&sonic_1, sizeof(sonic_1));
   dataFile1.close();
@@ -89,28 +89,35 @@ int load_images(String image_set[]) {
   dataFile4 = SD.open(image_set[3], FILE_READ);
   dataFile4.read((uint8_t *)&sonic_4, sizeof(sonic_4));
   dataFile4.close();
-  int setsize = sizeof(image_set);
-  return setsize;  
+  setsize = sizeof(image_set);  
 }
 
-int draw_sonic(int intcount, int setsize) {
-  if (intcount < setsize - 1) {
-    intcount++;
-  }
-  else {
-    intcount = 0;
-  }
-  switch (count) {
-    case 0:
+void draw_sonic() {
+  currenttime = millis();
+  if (currenttime > due) {
+    if (count < setsize - 1) {
+    count++;
+    }
+    else {
+      count = 0;
+    }
+    if (count == 0) {
       sonicSprite.pushImage(20, 20, 70, 80, sonic_1, TFT_BLACK);
-    case 1:
+    }
+    if (count == 1) {
       sonicSprite.pushImage(20, 20, 70, 80, sonic_2, TFT_BLACK);
-    case 2:
+    }
+    if (count == 2) {
       sonicSprite.pushImage(20, 20, 70, 80, sonic_3, TFT_BLACK);
-    case 3:
+    }
+    if (count == 3) {
       sonicSprite.pushImage(20, 20, 70, 80, sonic_4, TFT_BLACK);
+    }
+    sonicSprite.pushToSprite(&background, 20, 80);
+    Serial.println(currenttime);
+    due = due + 30;
   }
-  return intcount;
+  delay(10);
 }
 
 void setup() {
@@ -155,12 +162,10 @@ void setup() {
   //disconnect WiFi as it's no longer needed
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
-  set_size = load_images(run_left);
+  load_images(run_left);
 }
 
 void loop() {
-  count = draw_sonic(count, set_size);
-  sonicSprite.pushToSprite(&background, 20, 80);
+  draw_sonic();
   background.pushSprite(sonic_pos.x, sonic_pos.y);
-  delay(3000);
 }
