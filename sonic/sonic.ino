@@ -22,17 +22,73 @@ enum states {
   standing,
   jumping
 };
-String run_right[4] = {
+String fast_right[4] = {
   "/sonic_fast_1.bin",
   "/sonic_fast_2.bin",
   "/sonic_fast_3.bin",
   "/sonic_fast_4.bin"
 };
-String run_left[4] = {
+String fast_left[4] = {
   "/sonic_fast_1_rev.bin",
   "/sonic_fast_2_rev.bin",
   "/sonic_fast_3_rev.bin",
   "/sonic_fast_4_rev.bin",
+};
+String roll_right[5] = {
+  "/sonic_roll_1.bin",
+  "/sonic_roll_2.bin",
+  "/sonic_roll_3.bin",
+  "/sonic_roll_4.bin",
+  "/sonic_roll_5.bin"
+};
+String roll_left[5] = {
+  "/sonic_roll_1_rev.bin",
+  "/sonic_roll_2_rev.bin",
+  "/sonic_roll_3_rev.bin",
+  "/sonic_roll_4_rev.bin",
+  "/sonic_roll_5_rev.bin"
+};
+String run_right[8] = {
+  "/sonic_run_1.bin",
+  "/sonic_run_2.bin",
+  "/sonic_run_3.bin",
+  "/sonic_run-4.bin",
+  "/sonic_run_5.bin",
+  "/sonic_run_6.bin",
+  "/sonic_run-7.bin",
+  "/sonic_run_8.bin"
+};
+String run_left[8] = {
+  "/sonic_run_1_rev.bin",
+  "/sonic_run_2_rev.bin",
+  "/sonic_run_3_rev.bin",
+  "/sonic_run_4_rev.bin",
+  "/sonic_run_5_rev.bin",
+  "/sonic_run_6_rev.bin",
+  "/sonic_run_7_rev.bin",
+  "/sonic_run_8_rev.bin"
+};
+String stand_right[6] = {
+  "/sonic_stand_1.bin",
+  "/sonic_stand_2.bin",
+  "/sonic_stand_3.bin",
+  "/sonic_stand-4.bin",
+  "/sonic_stand_5.bin",
+  "/sonic_stand_6.bin"
+};
+String stand_left[6] = {
+  "/sonic_stand_1_rev.bin",
+  "/sonic_stand_2_rev.bin",
+  "/sonic_stand_3_rev.bin",
+  "/sonic_stand_4_rev.bin",
+  "/sonic_stand_5_rev.bin",
+  "/sonic_stand_6_rev.bin"
+};
+String star[4] = {
+  "/sonic_star_1.bin",
+  "/sonic_star_2.bin",
+  "/sonic_star_3.bin",
+  "/sonic_star_4.bin"
 };
 
 //constants
@@ -72,6 +128,8 @@ uint16_t sonic_1[5600];
 uint16_t sonic_2[5600];
 uint16_t sonic_3[5600];
 uint16_t sonic_4[5600];
+unsigned long lastupdate;
+int imgset;
 
 String image;
 int array_length;
@@ -114,7 +172,6 @@ void draw_sonic() {
       sonicSprite.pushImage(20, 20, 70, 80, sonic_4, TFT_BLACK);
     }
     sonicSprite.pushToSprite(&background, 20, 80);
-    Serial.println(currenttime);
     due = due + 30;
   }
   delay(10);
@@ -162,10 +219,51 @@ void setup() {
   //disconnect WiFi as it's no longer needed
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
-  load_images(run_left);
+  load_images(roll_right);
 }
 
 void loop() {
+  if (millis() > lastupdate + 10000) {
+    lastupdate = millis();
+    imgset++;
+    if (imgset == 0) {
+      load_images(run_right);
+      Serial.println("run right");
+    }
+    if (imgset == 1) {
+      load_images(run_left);
+      Serial.println("run left");
+    }
+    if (imgset == 2) {
+      load_images(roll_right);
+      Serial.println("roll right");
+    }
+    if (imgset == 3) {
+      load_images(roll_left);
+      Serial.println("roll left");
+    }
+    if (imgset == 4) {
+      load_images(fast_right);
+      Serial.println("fast right");
+    }
+    if (imgset == 5) {
+      load_images(fast_left);
+      Serial.println("fast last");
+    }
+    if (imgset == 6) {
+      load_images(stand_right);
+      Serial.println("stand right");
+    }
+    if (imgset == 7) {
+      load_images(stand_left);
+      Serial.println("stand left");
+    }
+    if (imgset == 8) {
+      load_images(star);
+      Serial.println("star");
+      imgset = -1;
+    }
+  }
   draw_sonic();
   background.pushSprite(sonic_pos.x, sonic_pos.y);
 }
