@@ -34,55 +34,55 @@ String fast_left[4] = {
   "/sonic_fast_3_rev.bin",
   "/sonic_fast_4_rev.bin",
 };
-String roll_right[5] = {
+String roll_right[4] = {
   "/sonic_roll_1.bin",
   "/sonic_roll_2.bin",
   "/sonic_roll_3.bin",
-  "/sonic_roll_4.bin",
-  "/sonic_roll_5.bin"
+  "/sonic_roll_4.bin"
+//  "/sonic_roll_5.bin"
 };
-String roll_left[5] = {
+String roll_left[4] = {
   "/sonic_roll_1_rev.bin",
   "/sonic_roll_2_rev.bin",
   "/sonic_roll_3_rev.bin",
-  "/sonic_roll_4_rev.bin",
-  "/sonic_roll_5_rev.bin"
+  "/sonic_roll_4_rev.bin"
+//  "/sonic_roll_5_rev.bin"
 };
-String run_right[8] = {
+String run_right[4] = {
   "/sonic_run_1.bin",
   "/sonic_run_2.bin",
   "/sonic_run_3.bin",
-  "/sonic_run-4.bin",
-  "/sonic_run_5.bin",
-  "/sonic_run_6.bin",
-  "/sonic_run-7.bin",
-  "/sonic_run_8.bin"
+  "/sonic_run-4.bin"
+//  "/sonic_run_5.bin",
+//  "/sonic_run_6.bin",
+//  "/sonic_run-7.bin",
+//  "/sonic_run_8.bin"
 };
-String run_left[8] = {
+String run_left[4] = {
   "/sonic_run_1_rev.bin",
   "/sonic_run_2_rev.bin",
   "/sonic_run_3_rev.bin",
-  "/sonic_run_4_rev.bin",
-  "/sonic_run_5_rev.bin",
-  "/sonic_run_6_rev.bin",
-  "/sonic_run_7_rev.bin",
-  "/sonic_run_8_rev.bin"
+  "/sonic_run_4_rev.bin"
+//  "/sonic_run_5_rev.bin",
+//  "/sonic_run_6_rev.bin",
+//  "/sonic_run_7_rev.bin",
+//  "/sonic_run_8_rev.bin"
 };
-String stand_right[6] = {
+String stand_right[4] = {
   "/sonic_stand_1.bin",
   "/sonic_stand_2.bin",
   "/sonic_stand_3.bin",
-  "/sonic_stand-4.bin",
-  "/sonic_stand_5.bin",
-  "/sonic_stand_6.bin"
+  "/sonic_stand-4.bin"
+//  "/sonic_stand_5.bin",
+//  "/sonic_stand_6.bin"
 };
-String stand_left[6] = {
+String stand_left[4] = {
   "/sonic_stand_1_rev.bin",
   "/sonic_stand_2_rev.bin",
   "/sonic_stand_3_rev.bin",
-  "/sonic_stand_4_rev.bin",
-  "/sonic_stand_5_rev.bin",
-  "/sonic_stand_6_rev.bin"
+  "/sonic_stand_4_rev.bin"
+//  "/sonic_stand_5_rev.bin",
+//  "/sonic_stand_6_rev.bin"
 };
 String star[4] = {
   "/sonic_star_1.bin",
@@ -114,7 +114,7 @@ const int   daylightOffset_sec = 3600;
 //variables
 File dataFile1, dataFile2, dataFile3, dataFile4;
 int count = 0;
-int setsize;
+int setsize = 4;
 unsigned long due = 0;
 unsigned long currenttime = 0;
 pos sonic_pos = {init_sonic_x, init_sonic_y};
@@ -124,10 +124,7 @@ bool rev = false;
 int jump_ani_count = 0;
 int jump_height_count = 0;
 float jumpheight = 0;
-uint16_t sonic_1[5600];
-uint16_t sonic_2[5600];
-uint16_t sonic_3[5600];
-uint16_t sonic_4[5600];
+uint16_t sonic_1[5600], sonic_2[5600], sonic_3[5600], sonic_4[5600];
 unsigned long lastupdate;
 int imgset;
 
@@ -135,6 +132,7 @@ String image;
 int array_length;
 
 void load_images(String image_set[]) {
+//  setsize = set_size;
   dataFile1 = SD.open(image_set[0], FILE_READ);
   dataFile1.read((uint8_t *)&sonic_1, sizeof(sonic_1));
   dataFile1.close();
@@ -147,7 +145,18 @@ void load_images(String image_set[]) {
   dataFile4 = SD.open(image_set[3], FILE_READ);
   dataFile4.read((uint8_t *)&sonic_4, sizeof(sonic_4));
   dataFile4.close();
-  setsize = sizeof(image_set);  
+//  dataFile5 = SD.open(image_set[4], FILE_READ);
+//  dataFile5.read((uint8_t *)&sonic_5, sizeof(sonic_5));
+//  dataFile5.close();
+//  dataFile6 = SD.open(image_set[5], FILE_READ);
+//  dataFile6.read((uint8_t *)&sonic_6, sizeof(sonic_6));
+//  dataFile6.close();
+//  dataFile7 = SD.open(image_set[6], FILE_READ);
+//  dataFile7.read((uint8_t *)&sonic_7, sizeof(sonic_7));
+//  dataFile7.close();
+//  dataFile8 = SD.open(image_set[7], FILE_READ);
+//  dataFile8.read((uint8_t *)&sonic_8, sizeof(sonic_8));
+//  dataFile8.close();
 }
 
 void draw_sonic() {
@@ -159,6 +168,7 @@ void draw_sonic() {
     else {
       count = 0;
     }
+    Serial.println(setsize);
     if (count == 0) {
       sonicSprite.pushImage(20, 20, 70, 80, sonic_1, TFT_BLACK);
     }
@@ -248,7 +258,7 @@ void loop() {
     }
     if (imgset == 5) {
       load_images(fast_left);
-      Serial.println("fast last");
+      Serial.println("fast left");
     }
     if (imgset == 6) {
       load_images(stand_right);
